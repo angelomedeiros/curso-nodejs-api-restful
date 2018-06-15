@@ -1,5 +1,6 @@
 import * as restify from 'restify'
 import { Router } from '../common/router'
+import { NotFoundError } from 'restify-errors'
 import { User } from './users.model'
 
 class UsersRouter extends Router {
@@ -38,20 +39,22 @@ class UsersRouter extends Router {
 		})
 
 		application.put('/users/:id', (req, resp, next) => {
-			const options = { overwrite: true }
+			// O runValidators irá aplicar o middleWare em Update também
+			const options = { runValidators:true, overwrite: true }
 			User.update({_id: req.params.id}, req.body, options).exec()
 			.then(result =>{
 				if (result.n) {
 					return User.findById(req.params.id)
 				} else {
-					resp.send(404)
+					throw new NotFoundError('Documento não encontrado!')					
 				}
 			}).then(this.render(resp, next))
 				.catch(next)
 		})
 
 		application.patch('/users/:id', (req, resp, next) => {
-			const options = { new: true }
+			// O runValidators irá aplicar o middleWare em Update também
+			const options = { runValidators:true, new: true }
 			User.findByIdAndUpdate(req.params.id, req.body, options).then(
 				this.render(resp, next)
 			).catch(next)
@@ -62,7 +65,7 @@ class UsersRouter extends Router {
 				if (cmdResult.result.n) {
 					resp.send(204)
 				} else {
-					resp.send(404)
+					throw new NotFoundError('Documento não encontrado!')
 				}
 				return next()
 			}).catch(next)

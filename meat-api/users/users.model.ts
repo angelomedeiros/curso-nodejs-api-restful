@@ -20,6 +20,9 @@
 // }
 
 import * as mongoose from 'mongoose'
+import {validateCPF} from '../common/validators'
+import * as bcrypt from 'bcrypt'
+import { environment } from '../common/environment'
 
 export interface User extends mongoose.Document {
 	name: string,
@@ -29,15 +32,59 @@ export interface User extends mongoose.Document {
 
 const userSchema = new mongoose.Schema({
 	name: {
-		type: String
+		type: String,
+		required: true,
+		maxlength: 80,
+		minlength: 3
 	},
 	email: {
 		type: String,
-		unique: true
+		unique: true,
+		required: true,
+		match: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 	},
 	password: {
 		type: String,
-		select: false
+		select: false,
+		required: true
+	},
+	gender: {
+		type: String,
+		required: false,
+		enum: [ 'Male', 'Female' ]
+	},
+	cpf: {
+		type: String,
+		required: false,
+		validate: {
+			validator: validateCPF,
+			message: '{PATH}: Invalid CPF ({VALUE})'
+		}
+	}
+})
+
+userSchema.pre('save', function(next){
+	const user: User = this
+	if (!user.isModified('password')) {
+		next()	
+	} else {
+		bcrypt.hash(user.password, environment.secutity.saltRounds)
+			.then(hash => {
+				user.password = hash
+				next()
+			}).catch(next)
+	}
+})
+
+userSchema.pre('findOneAndUpdate', function(next){
+	if (!this.getUpdate().password) {
+		next()	
+	} else {
+		bcrypt.hash(this.getUpdate().password, environment.secutity.saltRounds)
+			.then(hash => {
+				this.getUpdate().password = hash
+				next()
+			}).catch(next)
 	}
 })
 
