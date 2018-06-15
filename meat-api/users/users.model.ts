@@ -63,29 +63,58 @@ const userSchema = new mongoose.Schema({
 	}
 })
 
-userSchema.pre('save', function(next){
+const hashPassword = (obj, next) => {
+	bcrypt.hash(obj.password, environment.secutity.saltRounds)
+			.then(hash => {
+				obj.password = hash
+				next()
+			}).catch(next)
+}
+
+const saveMiddleware = function(next){
 	const user: User = this
 	if (!user.isModified('password')) {
 		next()	
 	} else {
-		bcrypt.hash(user.password, environment.secutity.saltRounds)
-			.then(hash => {
-				user.password = hash
-				next()
-			}).catch(next)
+		hashPassword(user, next)
 	}
-})
+}
 
-userSchema.pre('findOneAndUpdate', function(next){
+const updateMiddleware = function(next){
 	if (!this.getUpdate().password) {
 		next()	
 	} else {
-		bcrypt.hash(this.getUpdate().password, environment.secutity.saltRounds)
-			.then(hash => {
-				this.getUpdate().password = hash
-				next()
-			}).catch(next)
+		hashPassword(this.getUpdate(), next)
 	}
-})
+}
+
+userSchema.pre('save', saveMiddleware)
+userSchema.pre('update', updateMiddleware)
+userSchema.pre('findOneAndUpdate', updateMiddleware)
+
+// userSchema.pre('save', function(next){
+// 	const user: User = this
+// 	if (!user.isModified('password')) {
+// 		next()	
+// 	} else {
+// 		bcrypt.hash(user.password, environment.secutity.saltRounds)
+// 			.then(hash => {
+// 				user.password = hash
+// 				next()
+// 			}).catch(next)
+// 	}
+// })
+
+// userSchema.pre('findOneAndUpdate', function(next){
+// 	if (!this.getUpdate().password) {
+// 		next()	
+// 	} else {
+// 		bcrypt.hash(this.getUpdate().password, environment.secutity.saltRounds)
+// 			.then(hash => {
+// 				this.getUpdate().password = hash
+// 				next()
+// 			}).catch(next)
+// 	}
+// })
 
 export const User = mongoose.model<User>('User', userSchema)
