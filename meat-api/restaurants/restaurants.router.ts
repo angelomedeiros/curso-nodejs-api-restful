@@ -1,4 +1,4 @@
-import { Server } 			 from 'restify'
+import { Server }        from 'restify'
 import { NotFoundError } from 'restify-errors'
 import { ModelRouter } 	 from '../common/model-router'
 import { Restaurant }    from './restaurants.model'
