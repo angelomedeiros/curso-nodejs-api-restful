@@ -8,16 +8,22 @@ class RestaurantsRouter extends ModelRouter<Restaurant> {
 		super(Restaurant)
 	}
 
-	public applyRoutes(application: Server) {
-		application.get('/restaurants', this.findAll)
-		application.get('/restaurants/:id', [this.validadeId, this.findById])
-		application.post('/restaurants', this.save)
-		application.put('/restaurants/:id', [this.validadeId, this.replace])
-		application.patch('/restaurants/:id', [this.validadeId, this.replace])
-		application.del('/restaurants/:id', [this.validadeId, this.delete])
+	envelope(document) {
+		const resource = super.envelope(document)
+		resource._links.menu = `${this.basePath}/${resource._id}/menu`
+		return resource
+	}
 
-		application.get('/restaurants/:id/menu', [this.validadeId, this.findMenu])
-		application.put('/restaurants/:id/menu', [this.validadeId, this.replaceMenu])
+	public applyRoutes(application: Server) {
+		application.get(`${this.basePath}`, this.findAll)
+		application.get(`${this.basePath}/:id`, [this.validadeId, this.findById])
+		application.post(`${this.basePath}`, this.save)
+		application.put(`${this.basePath}/:id`, [this.validadeId, this.replace])
+		application.patch(`${this.basePath}/:id`, [this.validadeId, this.replace])
+		application.del(`${this.basePath}/:id`, [this.validadeId, this.delete])
+
+		application.get(`${this.basePath}/:id/menu`, [this.validadeId, this.findMenu])
+		application.put(`${this.basePath}/:id/menu`, [this.validadeId, this.replaceMenu])
 	}
 
 	private findMenu = (req, resp, next) => {
