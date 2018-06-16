@@ -1,12 +1,12 @@
-import * as restify from 'restify'
 import { EventEmitter } from 'events'
+import * as restify from 'restify'
 import { NotFoundError } from 'restify-errors'
 
 export abstract class Router extends EventEmitter {
-	abstract applyRoutes(application: restify.Server)
+	public abstract applyRoutes(application: restify.Server)
 
-	render(response: restify.Response, next: restify.Next){
-		return (document) => {
+	public render(response: restify.Response, next: restify.Next) {
+		return document => {
 			if (document) {
 				this.emit('beforeRender', document)
 				response.json(document)
@@ -17,7 +17,7 @@ export abstract class Router extends EventEmitter {
 		}
 	}
 
-	renderAll(response: restify.Response, next: restify.Next){
+	public renderAll(response: restify.Response, next: restify.Next) {
 		return (documents: any[]) => {
 			if (documents) {
 				documents.forEach(document => {
