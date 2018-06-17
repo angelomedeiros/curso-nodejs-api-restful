@@ -1,6 +1,6 @@
 export const environment = {
 	db: { url: process.env.DB_URL || 'mongodb://localhost/meat-api' },
-	secutity: {
+	security: {
 		apiSecret: process.env.API_SECRET || 'meat-api-secret',
 		saltRounds: process.env.SALT_ROUNDS || 10,
 	},

@@ -1,40 +1,21 @@
-// const users = [
-//  {id: '1', name: 'Angelo Medeiros', email: 'angelo@email.com'},
-//  {id: '2', name: 'Thalita Oliverira', email: 'thalita@email.com'}
-// ]
-
-// export class User {
-//  static findAll(): Promise<any[]>{
-//    return Promise.resolve(users) 
-//  }
-//  static findById(id: string): Promise<any>{
-//    return new Promise(resolve =>{
-//      const filtered = users.filter(user => user.id === id)
-//      let user = undefined
-//      if (filtered.length > 0){
-//        user = filtered[0]
-//      }
-//      resolve(user)
-//    })  
-//  }
-// }
-
-import * as bcrypt from 'bcrypt'
-import * as mongoose from 'mongoose'
+import * as bcrypt 		 from 'bcrypt'
+import * as mongoose	 from 'mongoose'
 import { environment } from '../common/environment'
-import {validateCPF} from '../common/validators'
+import {validateCPF} 	 from '../common/validators'
 
-export interface IUser extends mongoose.Document {
+export interface User extends mongoose.Document {
 	cpf: string,
 	email: string,
 	gender: string,
 	password: string,
 	name: string,
-	matches(password: string): boolean
+	profiles: string[],
+	matches(password: string): boolean,
+	hasAny(...profiles: string[]): boolean
 }
 
-export interface IUserModel extends mongoose.Model<IUser> {
-	findByEmail(email: string, projection?: string): Promise<IUser>
+export interface IUserModel extends mongoose.Model<User> {
+	findByEmail(email: string, projection?: string): Promise<User>
 }
 
 const userSchema = new mongoose.Schema({
@@ -68,6 +49,10 @@ const userSchema = new mongoose.Schema({
 		select: false,
 		type: String,
 	},
+	profiles: {
+		required: false,
+		type: [String],
+	},
 })
 
 userSchema.statics.findByEmail = function(email: string, projection: string) {
@@ -78,8 +63,12 @@ userSchema.methods.matches = function(password: string): boolean {
 	return bcrypt.compareSync(password, this.password)
 }
 
+userSchema.methods.hasAny = function(...profiles: string[]): boolean {
+	return profiles.some(profile => this.profiles.indexOf(profile) !== -1)
+}
+
 const hashPassword = (obj, next) => {
-	bcrypt.hash(obj.password, environment.secutity.saltRounds)
+	bcrypt.hash(obj.password, environment.security.saltRounds)
 			.then(hash => {
 				obj.password = hash
 				next()
@@ -87,7 +76,7 @@ const hashPassword = (obj, next) => {
 }
 
 const saveMiddleware = function(next) {
-	const user: IUser = this
+	const user: User = this
 	if (!user.isModified('password')) {
 		next()
 	} else {
@@ -107,4 +96,4 @@ userSchema.pre('save', saveMiddleware)
 userSchema.pre('update', updateMiddleware)
 userSchema.pre('findOneAndUpdate', updateMiddleware)
 
-export const User = mongoose.model<IUser, IUserModel>('User', userSchema)
+export const User = mongoose.model<User, IUserModel>('User', userSchema)

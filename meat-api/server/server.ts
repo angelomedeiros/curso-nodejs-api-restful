@@ -1,8 +1,9 @@
-import * as mongoose from 'mongoose'
-import * as restify from 'restify'
-import { environment } from '../common/environment'
-import { Router } from '../common/router'
-import { handleError } from './error.handler'
+import * as mongoose 						from 'mongoose'
+import * as restify 						from 'restify'
+import { environment } 					from '../common/environment'
+import { Router } 							from '../common/router'
+import { tokenParser } 					from '../security/token.parser'
+import { handleError } 					from './error.handler'
 import { mergePatchBodyParser } from './merge-patch.parser'
 
 export class Server {
@@ -27,6 +28,7 @@ export class Server {
 				this.application.use(restify.plugins.queryParser())
 				this.application.use(restify.plugins.bodyParser())
 				this.application.use(mergePatchBodyParser)
+				this.application.use(tokenParser)
 
 				// Routes
 				for ( const router of routers ) {
