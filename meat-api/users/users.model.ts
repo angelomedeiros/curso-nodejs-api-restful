@@ -25,13 +25,16 @@ import { environment } from '../common/environment'
 import {validateCPF} from '../common/validators'
 
 export interface IUser extends mongoose.Document {
-	name: string,
+	cpf: string,
 	email: string,
-	password: string
+	gender: string,
+	password: string,
+	name: string,
+	matches(password: string): boolean
 }
 
 export interface IUserModel extends mongoose.Model<IUser> {
-	findByEmail(email: string): Promise<IUser>
+	findByEmail(email: string, projection?: string): Promise<IUser>
 }
 
 const userSchema = new mongoose.Schema({
@@ -67,8 +70,12 @@ const userSchema = new mongoose.Schema({
 	},
 })
 
-userSchema.statics.findByEmail = function(email: string) {
-	return this.findOne({ email })
+userSchema.statics.findByEmail = function(email: string, projection: string) {
+	return this.findOne({ email }, projection)
+}
+
+userSchema.methods.matches = function(password: string): boolean {
+	return bcrypt.compareSync(password, this.password)
 }
 
 const hashPassword = (obj, next) => {

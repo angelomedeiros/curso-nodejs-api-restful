@@ -1,7 +1,8 @@
 import * as restify      from 'restify'
 import { NotFoundError } from 'restify-errors'
 import { ModelRouter }   from '../common/model-router'
-import { IUser, User }          from './users.model'
+import { authenticate } from '../security/auth.handler'
+import { IUser, User }   from './users.model'
 
 class UsersRouter extends ModelRouter<IUser> {
 	constructor() {
@@ -19,6 +20,8 @@ class UsersRouter extends ModelRouter<IUser> {
 		application.put(`${this.basePath}/:id`, [this.validadeId, this.replace])
 		application.patch(`${this.basePath}/:id`, [this.validadeId, this.update])
 		application.del(`${this.basePath}/:id`, [this.validadeId, this.delete])
+
+		application.post(`${this.basePath}/authenticate`, authenticate)
 	}
 
 	private findByEmail = (req, respo, next) => {
