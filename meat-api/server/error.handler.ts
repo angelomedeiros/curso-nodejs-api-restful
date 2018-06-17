@@ -3,7 +3,7 @@ import * as restify from 'restify'
 export const handleError = (req: restify.Request, resp: restify.Response, err, done) => {
 	err.toJSON =  () => {
 		return {
-			message: err.message
+			message: err.message,
 		}
 	}
 
@@ -16,11 +16,12 @@ export const handleError = (req: restify.Request, resp: restify.Response, err, d
 		case 'ValidationError':
 			err.statusCode = 400
 			const messages: any[] = []
-			for (let name in err.errors){
+			for (const name of Object.keys(err.errors)) {
 				messages.push({message: err.errors[name].message})
 			}
 			err.toJSON = () => ({
-				errors: messages
+				errors: messages,
+				message: 'Validacao error enquanto processava sua requisicao',
 			})
 			break
 	}
