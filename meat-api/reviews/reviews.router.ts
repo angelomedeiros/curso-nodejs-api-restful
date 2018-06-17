@@ -25,7 +25,7 @@ class ReviewsRouter extends ModelRouter<IReview> {
 
 	public applyRoutes(application: restify.Server) {
 		application.get(`${this.basePath}`, this.findAll)
-		application.get(`${this.basePath}/:id`, [this.validadeId, this.findById])
+		application.get(`${this.basePath}/:id`, [this.validateId, this.findById])
 		application.post(`${this.basePath}`, this.save)
 	}
 

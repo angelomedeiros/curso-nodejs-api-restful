@@ -16,14 +16,14 @@ class RestaurantsRouter extends ModelRouter<Restaurant> {
 
 	public applyRoutes(application: Server) {
 		application.get(`${this.basePath}`, this.findAll)
-		application.get(`${this.basePath}/:id`, [this.validadeId, this.findById])
+		application.get(`${this.basePath}/:id`, [this.validateId, this.findById])
 		application.post(`${this.basePath}`, this.save)
-		application.put(`${this.basePath}/:id`, [this.validadeId, this.replace])
-		application.patch(`${this.basePath}/:id`, [this.validadeId, this.replace])
-		application.del(`${this.basePath}/:id`, [this.validadeId, this.delete])
+		application.put(`${this.basePath}/:id`, [this.validateId, this.replace])
+		application.patch(`${this.basePath}/:id`, [this.validateId, this.replace])
+		application.del(`${this.basePath}/:id`, [this.validateId, this.delete])
 
-		application.get(`${this.basePath}/:id/menu`, [this.validadeId, this.findMenu])
-		application.put(`${this.basePath}/:id/menu`, [this.validadeId, this.replaceMenu])
+		application.get(`${this.basePath}/:id/menu`, [this.validateId, this.findMenu])
+		application.put(`${this.basePath}/:id/menu`, [this.validateId, this.replaceMenu])
 	}
 
 	private findMenu = (req, resp, next) => {
