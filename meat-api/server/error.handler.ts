@@ -1,7 +1,6 @@
 import * as restify from 'restify'
 
 export const handleError = (req: restify.Request, resp: restify.Response, err, done) => {
-	console.log('EXIBIÇÃO DE ERROS', err)
 	err.toJSON =  () => {
 		return {
 			message: err.message

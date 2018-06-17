@@ -17,7 +17,7 @@ class UsersRouter extends ModelRouter<IUser> {
 		application.get(`${this.basePath}/:id`, [this.validadeId, this.findById])
 		application.post(`${this.basePath}`, this.save)
 		application.put(`${this.basePath}/:id`, [this.validadeId, this.replace])
-		application.patch(`${this.basePath}/:id`, [this.validadeId, this.replace])
+		application.patch(`${this.basePath}/:id`, [this.validadeId, this.update])
 		application.del(`${this.basePath}/:id`, [this.validadeId, this.delete])
 	}
 
