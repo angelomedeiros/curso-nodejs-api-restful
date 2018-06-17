@@ -80,7 +80,7 @@ const hashPassword = (obj, next) => {
 }
 
 const saveMiddleware = function(next) {
-	const user: User = this
+	const user: IUser = this
 	if (!user.isModified('password')) {
 		next()
 	} else {

@@ -1,13 +1,13 @@
 import * as mongoose  from 'mongoose'
 import { Restaurant } from '../restaurants/restaurants.model'
-import { User }       from '../users/users.model'
+import { IUser }       from '../users/users.model'
 
 export interface IReview extends mongoose.Document {
 	comments: string,
 	date: Date,
 	rating: number,
 	restaurant: mongoose.Types.ObjectId | Restaurant,
-	user: mongoose.Types.ObjectId | User,
+	user: mongoose.Types.ObjectId | IUser,
 }
 
 const reviewSchema = new mongoose.Schema({

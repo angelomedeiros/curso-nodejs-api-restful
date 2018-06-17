@@ -1,36 +1,35 @@
-import * as restify from 'restify'
 import * as mongoose from 'mongoose'
+import * as restify from 'restify'
 import { environment } from '../common/environment'
 import { Router } from '../common/router'
-import { mergePatchBodyParser } from './merge-patch.parser'
 import { handleError } from './error.handler'
+import { mergePatchBodyParser } from './merge-patch.parser'
 
 export class Server {
-	application: restify.Server
+	public application: restify.Server
 
-	initializeDb(): mongoose.MongooseThenable {
-		(<any>mongoose).Promise = global.Promise
+	public initializeDb(): mongoose.MongooseThenable {
+		(mongoose as any).Promise = global.Promise
 		return mongoose.connect(environment.db.url, {
-      useMongoClient: true
-    })
+			useMongoClient: true,
+		})
 	}
 
-	initRoutes(routers: Router[]): Promise<any>{
+	public initRoutes(routers: Router[]): Promise<any> {
 		return new Promise((resolve, reject) => {
 			try {
 
 				this.application = restify.createServer({
 					name: 'meat-api',
-					version: '1.0.0'
+					version: '1.0.0',
 				})
-
 
 				this.application.use(restify.plugins.queryParser())
 				this.application.use(restify.plugins.bodyParser())
 				this.application.use(mergePatchBodyParser)
-				
+
 				// Routes
-				for ( let router of routers ) {
+				for ( const router of routers ) {
 					router.applyRoutes(this.application)
 				}
 
@@ -40,17 +39,18 @@ export class Server {
 
 				this.application.on('restifyError', handleError)
 
-
 			} catch (error) {
 				reject(error)
 			}
 		})
 	}
 
-	bootstrap(routers: Router[] = []): Promise<Server>{
-		return this.initializeDb().then(()=>
-           this.initRoutes(routers).then(()=> this))
+	public bootstrap(routers: Router[] = []): Promise<Server> {
+		return this.initializeDb().then(() =>
+					 this.initRoutes(routers).then(() => this))
+	}
+
+	public shutdown() {
+		return mongoose.disconnect().then(() => this.application.close())
 	}
 }
-
-
