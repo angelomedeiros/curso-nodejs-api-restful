@@ -1,3 +1,4 @@
+import * as fs 									from 'fs'
 import * as mongoose 						from 'mongoose'
 import * as restify 						from 'restify'
 import { environment } 					from '../common/environment'
@@ -21,6 +22,8 @@ export class Server {
 			try {
 
 				this.application = restify.createServer({
+					certificate: fs.readFileSync('./security/keys/cert.pem'),
+					key: fs.readFileSync('./security/keys/key.pem'),
 					name: 'meat-api',
 					version: '1.0.0',
 				})
